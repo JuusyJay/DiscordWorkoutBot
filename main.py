@@ -1,63 +1,100 @@
+import discord
 from typing import Final
 import os
 from dotenv import load_dotenv
-from discord import Intents, Client, Message
-from responses import get_response
+from discord.ext import commands
+from random import choice, randint
 
-#STEP 0: LOAD OUR TOKEN FROM SAFE PLACE :D uwu poosy
+
+#TELLS BOT THAT COMMANDS START WITH "!" AND GIVES INTENT/PERMISSIONS TO ALL FOR BOT
+bot = commands.Bot(command_prefix="!", intents = discord.Intents.all())
+
+
+#LOAD OUR TOKEN FROM SAFE PLACE :D uwu poosy
 load_dotenv()
 TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
 
 
-#STEP 1: BOT SETUP               ALLLOWS BOT TO SEE MESSAGE CONTENT LIKE 
-#                                PERMISSIONS I THINK, CAN ADD MORE
-#
-# ALSO CREATES A CLIENT NAMED 
-# CLIENT THAT HAS THE INTENTS
-
-intents: Intents = Intents.default()
-intents.message_content = True  # NOQA
-client: Client = Client(intents=intents)
-
-#STEP 2: MESSAGE FUNCTIONALITY
-async def send_message(message: Message, user_message: str) -> None:
-    if not user_message:
-        print('(Message was empty because intents were not enabled probably)')
-        return
-
-    if is_private := user_message[0] == '?':
-        user_message = user_message[1:]
-
-    try:
-        response: str = get_response(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
-    except Exception as e:
-        print(e)
-
-#STEP 3: HANDLING STARTUP FOR BOT
-@client.event
-async def on_ready() -> None:
-    print(f'{client.user} is now running!')
-
-#STEP 4: HANDLING INCOMING MESSAGES
-@client.event
-async def on_message(message: Message) -> None:
-    if message.author == client.user:
-        return
-
-    username: str = str(message.author)
-    user_message: str = message.content
-    channel: str = str(message.channel)
-
-    print(f'[{channel}] {username}: "{user_message}"')
-    await send_message(message, user_message)
+# ALSO CALLS BOT EVENT TO DISPLAY IN CONSOLE THAT BOT IS CONNECTED
 
 
-# STEP 5: MAIN ENTRY POINT
-def main() -> None:
-    client.run(token=TOKEN)
+@bot.event
+async def on_ready():
+    print("Jotaro has connected to Discord!")
 
 
-if __name__ == '__main__':
-    main()
-    
+
+#TESTING BUTTONS:
+class WorkoutButtons(discord.ui.View):
+    def __init__(self, up: str, low: str, push: str, pull: str, leg: str):
+        super().__init__()
+        self.up = up
+        self.low = low
+        self.push = push
+        self.pull = pull
+        self.leg = leg
+
+    #CREATES ALL THE BUTTONS TO DISPLAY AND LABELS THEM
+    @discord.ui.button(label="Upper Body", style=discord.ButtonStyle.blurple)
+    async def inviteBtn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.up, ephemeral=False)
+    @discord.ui.button(label="Lower Body", style=discord.ButtonStyle.blurple)
+    async def inviteBtn1(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.low, ephemeral=False)
+    @discord.ui.button(label="Push", style=discord.ButtonStyle.blurple)
+    async def inviteBtn2(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.push, ephemeral=False)
+    @discord.ui.button(label="Pull", style=discord.ButtonStyle.blurple)
+    async def inviteBtn3(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.pull, ephemeral=False)
+    @discord.ui.button(label="Legs", style=discord.ButtonStyle.blurple)
+    async def inviteBtn4(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.leg, ephemeral=False)
+
+
+
+#DEFINES THE COMMAND AS "!workout" AND SETS MESSAGES FOR EACH BUTTON LABEL
+        
+@bot.command()
+async def workout(ctx: commands.Context):
+    low = f'\nLOWER WORKOUT:\n\nSquat: 3 Sets, 8-10 Reps!\nQuad Extension: 3 Sets, 8-12 Reps!\nSplit Squat: 3 Sets, 8-10 Reps!\nHamstring Machine: 3 Sets, 12-15 Reps!'
+    push = f'\nPUSH WORKOUT:\n\nBench Press: 3 Sets, 8-10 Reps!\nShoulder Press: 3 Sets, 8-12 Reps!\nSkull Crushers: 3 Sets, 8-10 Reps!\nCable Fly: 3 Sets, 12-15 Reps!'
+    pull = f'\nPULL WORKOUT:\n\nPull Ups: 3 Sets, 8-10 Reps!\nCable Pulldown: 3 Sets, 8-12 Reps!\nCurls: 3 Sets, 8-10 Reps!\nReverse Fly: 3 Sets, 12-15 Reps!'
+    leg = f'\nLEG WORKOUT:\n\nSquats: 3 Sets, 8-10 Reps!\nSplit Squat: 3 Sets, 8-12 Reps!\nQuad Extensions: 3 Sets, 8-10 Reps!\nDead Lift: 3 Sets, 6-10 Reps!'
+    up = f'\nUPPER WORKOUT:\n\nBench Press: 3 Sets, 8-10 Reps!\nOverhead Press: 3 Sets, 8-12 Reps!\nSkull Crushers: 3 Sets, 8-10 Reps!\nCable Fly: 3 Sets, 12-15 Reps!'
+    await ctx.send("Click the buttons below to Select a Workout:", view=WorkoutButtons(str(up), str(low), str(push), str(pull), str(leg)))
+    #THE await ctx.send SENDS THE MESSAGE AND EACH BUTTON
+
+
+class GambleButtons(discord.ui.View):
+    def __init__(self, rd: str, fc: str):
+        super().__init__()
+        self.rd = rd
+        self.fc = fc
+
+    @discord.ui.button(label="Roll Die", style=discord.ButtonStyle.blurple)
+    async def Btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.rd, ephemeral=False)
+    @discord.ui.button(label="Flip Coin", style=discord.ButtonStyle.blurple)
+    async def Btn1(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(self.fc, ephemeral=False)
+
+@bot.command()
+async def gamble(ctx: commands.Context):
+    if randint(0,100) <= 50: 
+        fc = f'You Rolled: Heads!'
+    else:
+        fc = f'You Rolled: Tails!'
+
+    rd = f'You Rolled: {randint(1,6)}'
+
+    await ctx.send("Click the buttons to Gamble:", view=GambleButtons(str(rd), str(fc)))
+
+# MAIN ENTRY POINT/ RUN BOT
+bot.run(TOKEN)
+
+
+
+
+
+#f'Bench Press: 3 Sets, 8-10 Reps!\nOverhead Press: 3 Sets, 8-12 Reps!\nSkull Crushers: 3 Sets, 8-10 Reps!\nCable Fly: 3 Sets, 12-15 Reps!'
