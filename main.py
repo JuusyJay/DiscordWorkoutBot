@@ -93,6 +93,108 @@ async def roll(ctx: commands.Context):
     dr = f'You Rolled: {randint(1,6)}'
     await ctx.send(dr)
 
+#  IMPLEMENTING BODY SURVEY
+class WeightSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+                   discord.SelectOption(label="110-119 lb.", value="110"),
+                   discord.SelectOption(label="120-129 lb.", value="120"), 
+                   discord.SelectOption(label="130-139 lb.", value="130"), 
+                   discord.SelectOption(label="140-149 lb.", value="140"), 
+                   discord.SelectOption(label="150-159 lb.", value="150"), 
+                   discord.SelectOption(label="160-169 lb.", value="160"), 
+                   discord.SelectOption(label="170-179 lb.", value="170"), 
+                   discord.SelectOption(label="180-189 lb.", value="180"), 
+                   discord.SelectOption(label="190-199 lb.", value="190"), 
+                   discord.SelectOption(label="200-209 lb.", value="200"), 
+                   discord.SelectOption(label="210-219 lb.", value="210"),
+                   discord.SelectOption(label="220-229 lb.", value="220"), 
+                   discord.SelectOption(label="230-239 lb.", value="230"),              
+                   
+        ]
+        super().__init__(options=options, placeholder="What is your Weight?", max_values=1)
+
+    async def callback(self, interaction:discord.Interaction):
+        await self.view.respond_to_answer3(interaction, self.values)
+
+
+class HeightSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+                   discord.SelectOption(label="5'3 in.", value="53"),            
+                   discord.SelectOption(label="5'4 in.", value="54"),
+                   discord.SelectOption(label="5'5 in.", value="55"),
+                   discord.SelectOption(label="5'6 in.", value="56"),
+                   discord.SelectOption(label="5'7 in.", value="57"),
+                   discord.SelectOption(label="5'8 in.", value="58"),
+                   discord.SelectOption(label="5'9 in.", value="59"),
+                   discord.SelectOption(label="5'10 in.", value="510"),
+                   discord.SelectOption(label="5'11 in.", value="511"),
+                   discord.SelectOption(label="6'0 in.", value="60"),
+                   discord.SelectOption(label="6'1 in.", value="61"),
+                   discord.SelectOption(label="6'2 in.", value="62"),
+                   discord.SelectOption(label="6'3 in.", value="63"),
+                   discord.SelectOption(label="6'5 in.", value="64"),
+                   discord.SelectOption(label="6'6 in.", value="65"),
+        ]
+        super().__init__(options=options, placeholder="What is your height?", max_values=1)
+
+    async def callback(self, interaction:discord.Interaction):
+        await self.view.respond_to_answer2(interaction, self.values)
+        
+
+
+class SurveyView(discord.ui.View):
+    answer1 = None 
+    answer2 = None
+    answer3 = None 
+    
+    @discord.ui.select(
+        placeholder="What is your age?",
+        options=[
+            discord.SelectOption(label="13 - 17", value="13"),
+            discord.SelectOption(label="18 - 23", value="18"),
+            discord.SelectOption(label="24 - 30", value="24"),
+            discord.SelectOption(label="31 - 45", value="31")
+        ]        
+    )
+    async def select_age(self, interaction:discord.Interaction, select_item : discord.ui.Select):   #dropdown for age
+        self.answer1 = select_item.values   #set answer 1 to items value
+        self.children[0].disabled= True   #disables changing answer
+        height_select = HeightSelect()  #call height select next
+        self.add_item(height_select)    #add height item to self
+        await interaction.message.edit(view=self)   #wait for the message interact
+        await interaction.response.defer()      #defer response until after survey
+             
+
+    async def respond_to_answer2(self, interaction : discord.Interaction, choices):
+        self.answer2 = choices 
+        self.children[1].disabled= True
+        weight_select = WeightSelect()          #add next dropdown call
+        self.add_item(weight_select)
+        await interaction.message.edit(view=self)
+        await interaction.response.defer()
+
+    async def respond_to_answer3(self, interaction : discord.Interaction, choices):
+        self.answer3 = choices 
+        self.children[2].disabled= True
+        await interaction.message.edit(view=self)
+        await interaction.response.defer()
+        self.stop()
+        
+
+#!SURVEY COMMAND
+@bot.command()
+async def survey(ctx):
+    view = SurveyView()    #set to view the above class 
+    await ctx.send(view=view)
+        
+    await view.wait()
+        
+    results = {
+            "a1": view.answer1,
+            "a2": view.answer2,
+    }
     
 
 
