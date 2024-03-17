@@ -21,7 +21,6 @@ async def on_ready():
     print("Jotaro has connected to Discord!")
 
 
-
 #TESTING  WORKOUT BUTTONS:
 class WorkoutButtons(discord.ui.View):
     def __init__(self, up: str, low: str, push: str, pull: str, leg: str): #Str intake for each button to display when pressed
@@ -64,19 +63,6 @@ async def workout(ctx: commands.Context):
     #THE await ctx.send SENDS THE MESSAGE AND EACH BUTTON
     #    **_text here__**     is bold and underlined in discord     ```text_here```    is boxed text in disc
 
-#took buttons out of gamble commands for now
-'''class GambleButtons(discord.ui.View):
-    def __init__(self, rd: str, fc: str):
-        super().__init__()
-        self.rd = rd
-        self.fc = fc
-
-    @discord.ui.button(label="Roll Die", style=discord.ButtonStyle.blurple)
-    async def Btn(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(self.rd, ephemeral=False)
-    @discord.ui.button(label="Flip Coin", style=discord.ButtonStyle.blurple)
-    async def Btn1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(self.fc, ephemeral=False)'''
 
 #!FLIP COIN COMMAND
 @bot.command()
@@ -87,29 +73,56 @@ async def flip(ctx: commands.Context):
         fc = f'You Rolled: Tails!'
     await ctx.send(fc)
 
+
 #!ROLL COMMAND TO ROLL DICE
 @bot.command()
 async def roll(ctx: commands.Context):
     dr = f'You Rolled: {randint(1,6)}'
     await ctx.send(dr)
 
+
 #  IMPLEMENTING BODY SURVEY
+class HeightSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+                    discord.SelectOption(label="5'3 in.", value="53"),            
+                    discord.SelectOption(label="5'4 in.", value="54"),
+                    discord.SelectOption(label="5'5 in.", value="55"),
+                    discord.SelectOption(label="5'6 in.", value="56"),
+                    discord.SelectOption(label="5'7 in.", value="57"),
+                    discord.SelectOption(label="5'8 in.", value="58"),
+                    discord.SelectOption(label="5'9 in.", value="59"),
+                    discord.SelectOption(label="5'10 in.", value="510"),
+                    discord.SelectOption(label="5'11 in.", value="511"),
+                    discord.SelectOption(label="6'0 in.", value="60"),
+                    discord.SelectOption(label="6'1 in.", value="61"),
+                    discord.SelectOption(label="6'2 in.", value="62"),
+                    discord.SelectOption(label="6'3 in.", value="63"),
+                    discord.SelectOption(label="6'5 in.", value="64"),
+                    discord.SelectOption(label="6'6 in.", value="65"),
+        ]
+        super().__init__(options=options, placeholder="What is your height?", max_values=1)
+
+    async def callback(self, interaction:discord.Interaction):
+        await self.view.respond_to_answer2(interaction, self.values)
+
+
 class WeightSelect(discord.ui.Select):
     def __init__(self):
         options = [
-                   discord.SelectOption(label="110-119 lb.", value="110"),
-                   discord.SelectOption(label="120-129 lb.", value="120"), 
-                   discord.SelectOption(label="130-139 lb.", value="130"), 
-                   discord.SelectOption(label="140-149 lb.", value="140"), 
-                   discord.SelectOption(label="150-159 lb.", value="150"), 
-                   discord.SelectOption(label="160-169 lb.", value="160"), 
-                   discord.SelectOption(label="170-179 lb.", value="170"), 
-                   discord.SelectOption(label="180-189 lb.", value="180"), 
-                   discord.SelectOption(label="190-199 lb.", value="190"), 
-                   discord.SelectOption(label="200-209 lb.", value="200"), 
-                   discord.SelectOption(label="210-219 lb.", value="210"),
-                   discord.SelectOption(label="220-229 lb.", value="220"), 
-                   discord.SelectOption(label="230-239 lb.", value="230"),              
+                    discord.SelectOption(label="110-119 lb.", value="110"),
+                    discord.SelectOption(label="120-129 lb.", value="120"), 
+                    discord.SelectOption(label="130-139 lb.", value="130"), 
+                    discord.SelectOption(label="140-149 lb.", value="140"), 
+                    discord.SelectOption(label="150-159 lb.", value="150"), 
+                    discord.SelectOption(label="160-169 lb.", value="160"), 
+                    discord.SelectOption(label="170-179 lb.", value="170"), 
+                    discord.SelectOption(label="180-189 lb.", value="180"), 
+                    discord.SelectOption(label="190-199 lb.", value="190"), 
+                    discord.SelectOption(label="200-209 lb.", value="200"), 
+                    discord.SelectOption(label="210-219 lb.", value="210"),
+                    discord.SelectOption(label="220-229 lb.", value="220"), 
+                    discord.SelectOption(label="230-239 lb.", value="230"),              
                    
         ]
         super().__init__(options=options, placeholder="What is your Weight?", max_values=1)
@@ -118,36 +131,49 @@ class WeightSelect(discord.ui.Select):
         await self.view.respond_to_answer3(interaction, self.values)
 
 
-class HeightSelect(discord.ui.Select):
+#GAIN LOSE OR MAINTAIN WEIGHT QUESTION
+class WorkoutGoal(discord.ui.Select):
     def __init__(self):
         options = [
-                   discord.SelectOption(label="5'3 in.", value="53"),            
-                   discord.SelectOption(label="5'4 in.", value="54"),
-                   discord.SelectOption(label="5'5 in.", value="55"),
-                   discord.SelectOption(label="5'6 in.", value="56"),
-                   discord.SelectOption(label="5'7 in.", value="57"),
-                   discord.SelectOption(label="5'8 in.", value="58"),
-                   discord.SelectOption(label="5'9 in.", value="59"),
-                   discord.SelectOption(label="5'10 in.", value="510"),
-                   discord.SelectOption(label="5'11 in.", value="511"),
-                   discord.SelectOption(label="6'0 in.", value="60"),
-                   discord.SelectOption(label="6'1 in.", value="61"),
-                   discord.SelectOption(label="6'2 in.", value="62"),
-                   discord.SelectOption(label="6'3 in.", value="63"),
-                   discord.SelectOption(label="6'5 in.", value="64"),
-                   discord.SelectOption(label="6'6 in.", value="65"),
+                    discord.SelectOption(label="Gain Weight, Build Muscle", value="11"),            
+                    discord.SelectOption(label="Maintain Weight, Build Muscle", value="22"),
+                    discord.SelectOption(label="Lose Weight, Build Muscle", value="33"),
         ]
-        super().__init__(options=options, placeholder="What is your height?", max_values=1)
+        super().__init__(options=options, placeholder="What is your training goal?", max_values=1)
 
     async def callback(self, interaction:discord.Interaction):
-        await self.view.respond_to_answer2(interaction, self.values)
-        
+        await self.view.respond_to_answer4(interaction, self.values)
 
 
-class SurveyView(discord.ui.View):
+#AMOUNT OF WEIGHT TO GAIN OR LOSE QUESTION
+class WeightAmount(discord.ui.Select):
+    def __init__(self):
+        options = [ 
+                    discord.SelectOption(label="0 lb.", value="0"),
+                    discord.SelectOption(label="5 lb.", value="5"),
+                    discord.SelectOption(label="7.5 lb.", value="7"),
+                    discord.SelectOption(label="10 lb.", value="10"),
+                    discord.SelectOption(label="12.5 lb.", value="12"), 
+                    discord.SelectOption(label="15 lb.", value="15"), 
+                    discord.SelectOption(label="17.5 lb.", value="17"), 
+                    discord.SelectOption(label="20 lb.", value="20"),
+                    discord.SelectOption(label="22.5 lb.", value="22"),
+                    discord.SelectOption(label="25 lb.", value="25"),         
+                    
+        ]
+        super().__init__(options=options, placeholder="How much weight would you like to gain or lose?", max_values=1)
+
+    async def callback(self, interaction:discord.Interaction):
+        await self.view.respond_to_answer5(interaction, self.values)
+
+
+#CREATE THE VIEW OF THE SURVEY AND THE ORDER OF QUESTIONS + HOW THEY WILL WORK
+class SurveyView(discord.ui.View): 
     answer1 = None 
     answer2 = None
     answer3 = None 
+    answer4 = None
+    answer5 = None 
     
     @discord.ui.select(
         placeholder="What is your age?",
@@ -166,7 +192,6 @@ class SurveyView(discord.ui.View):
         await interaction.message.edit(view=self)   #wait for the message interact
         await interaction.response.defer()      #defer response until after survey
              
-
     async def respond_to_answer2(self, interaction : discord.Interaction, choices):
         self.answer2 = choices 
         self.children[1].disabled= True
@@ -178,24 +203,88 @@ class SurveyView(discord.ui.View):
     async def respond_to_answer3(self, interaction : discord.Interaction, choices):
         self.answer3 = choices 
         self.children[2].disabled= True
+        workout_goal = WorkoutGoal()
+        self.add_item(workout_goal)
+        await interaction.message.edit(view=self)
+        await interaction.response.defer()
+    
+    async def respond_to_answer4(self, interaction : discord.Interaction, choices):
+        self.answer4 = choices 
+        self.children[3].disabled= True
+        weight_goal = WeightAmount()
+        self.add_item(weight_goal)
+        await interaction.message.edit(view=self)
+        await interaction.response.defer()
+
+    async def respond_to_answer5(self, interaction: discord.Interaction, choices):
+        self.answer5 = choices 
+        self.children[4].disabled = True
         await interaction.message.edit(view=self)
         await interaction.response.defer()
         self.stop()
         
 
+# CALCULATE MACROS FOR RESULT
+def calculate_macronutrient_goals(weight_goal: float, height: float, weight: int, age: int):
+
+    # Calculate Total Daily Energy Expenditure (TDEE)
+    if age <= 30:
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5     # Basal Metabolic Rate (BMR) for ages <= 30
+    else:
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161   # BMR for ages > 30
+
+
+    
+    if weight_goal == 11:               # Gain weight
+        tdee = bmr * 1.2                # activity level
+        calories = tdee + 1100          # Add surplus calories for weight gain
+
+    elif weight_goal == 33:             # Lose weight
+        tdee = bmr * 1.2                # activity level
+        calories = tdee - 400           # Subtract deficit calories for weight loss
+
+    else:                               # Maintain weight
+        tdee = bmr * 1.375              # activity level
+        calories = tdee + 400
+
+    
+    # Calculate macronutrient amounts
+    protein = weight * 1.3          # Protein intake (in grams)
+    fat = (calories * 0.25) / 9     # Fat intake (in grams)
+
+
+    # Ensure carbohydrates are not negative
+    carbohydrates = max((calories - (protein * 4) - (fat * 9)) / 4, 0)  # Carbohydrate intake (in grams)
+
+    # Calculate total recommended calories for macros
+    total_recommended_calories = protein * 4 + fat * 9 + carbohydrates * 4
+
+    return protein, fat, carbohydrates, total_recommended_calories
+
+
+
 #!SURVEY COMMAND
 @bot.command()
 async def survey(ctx):
-    view = SurveyView()    #set to view the above class 
-    await ctx.send(view=view)
+    view = SurveyView()    # Set to view the above class 
+    message = await ctx.send("**__Please complete the survey:__**", view=view)
         
     await view.wait()
-        
-    results = {
-            "a1": view.answer1,
-            "a2": view.answer2,
-    }
-    
+
+    # Retrieve the selected values from users answer choices
+    weight_goal = float(view.answer4[0])
+    height = float(view.answer2[0])
+    weight = int(view.answer3[0])
+    age = int(view.answer1[0])
+
+    # Calculate macros
+    protein, fat, carbohydrates, total_calories = calculate_macronutrient_goals(weight_goal, height, weight, age)
+
+    # Format the result message 
+    result_message = f"**__Here are your daily macronutrient goals:__**\n\n```Protein: {protein:.2f}g\nFat: {fat:.2f}g\nCarbohydrates: {carbohydrates:.2f}g\nTotal Calories: {total_calories:.2f}```"
+
+    # Send the result message below the survey
+    await ctx.send(result_message)
 
 
 # MAIN ENTRY POINT/ RUN BOT
