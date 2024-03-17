@@ -15,7 +15,7 @@ load_dotenv()
 TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
 
 
-# ALSO CALLS BOT EVENT TO DISPLAY IN CONSOLE THAT BOT IS CONNECTED
+#CALLS BOT EVENT TO DISPLAY IN CONSOLE THAT BOT IS CONNECTED
 @bot.event
 async def on_ready():
     print("Jotaro has connected to Discord!")
@@ -81,7 +81,7 @@ async def roll(ctx: commands.Context):
     await ctx.send(dr)
 
 
-#  IMPLEMENTING BODY SURVEY
+#IMPLEMENTING BODY SURVEY
 class HeightSelect(discord.ui.Select):
     def __init__(self):
         options = [
@@ -185,14 +185,14 @@ class SurveyView(discord.ui.View):
         ]        
     )
     async def select_age(self, interaction:discord.Interaction, select_item : discord.ui.Select):   #dropdown for age
-        self.answer1 = select_item.values   #set answer 1 to items value
-        self.children[0].disabled= True   #disables changing answer
-        height_select = HeightSelect()  #call height select next
-        self.add_item(height_select)    #add height item to self
+        self.answer1 = select_item.values           #set answer 1 to items value
+        self.children[0].disabled= True             #disables changing answer
+        height_select = HeightSelect()              #call height select next
+        self.add_item(height_select)                #add height item to self
         await interaction.message.edit(view=self)   #wait for the message interact
-        await interaction.response.defer()      #defer response until after survey
+        await interaction.response.defer()          #defer response until after survey
              
-    async def respond_to_answer2(self, interaction : discord.Interaction, choices):
+    async def respond_to_answer2(self, interaction : discord.Interaction, choices): #height
         self.answer2 = choices 
         self.children[1].disabled= True
         weight_select = WeightSelect()          #add next dropdown call
@@ -200,7 +200,7 @@ class SurveyView(discord.ui.View):
         await interaction.message.edit(view=self)
         await interaction.response.defer()
 
-    async def respond_to_answer3(self, interaction : discord.Interaction, choices):
+    async def respond_to_answer3(self, interaction : discord.Interaction, choices):  #weight
         self.answer3 = choices 
         self.children[2].disabled= True
         workout_goal = WorkoutGoal()
@@ -208,7 +208,7 @@ class SurveyView(discord.ui.View):
         await interaction.message.edit(view=self)
         await interaction.response.defer()
     
-    async def respond_to_answer4(self, interaction : discord.Interaction, choices):
+    async def respond_to_answer4(self, interaction : discord.Interaction, choices): #goal
         self.answer4 = choices 
         self.children[3].disabled= True
         weight_goal = WeightAmount()
@@ -216,7 +216,7 @@ class SurveyView(discord.ui.View):
         await interaction.message.edit(view=self)
         await interaction.response.defer()
 
-    async def respond_to_answer5(self, interaction: discord.Interaction, choices):
+    async def respond_to_answer5(self, interaction: discord.Interaction, choices):  #how much gain or lose
         self.answer5 = choices 
         self.children[4].disabled = True
         await interaction.message.edit(view=self)
@@ -224,39 +224,39 @@ class SurveyView(discord.ui.View):
         self.stop()
         
 
-# CALCULATE MACROS FOR RESULT
+#CALCULATE MACROS FOR RESULT
 def calculate_macronutrient_goals(weight_goal: float, height: float, weight: int, age: int):
 
-    # Calculate Total Daily Energy Expenditure (TDEE)
+    #calculate Total Daily Energy Expenditure [TDEE]
     if age <= 30:
-        bmr = 10 * weight + 6.25 * height - 5 * age + 5     # Basal Metabolic Rate (BMR) for ages <= 30
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5     #BMR for ages <= 30
     else:
-        bmr = 10 * weight + 6.25 * height - 5 * age - 161   # BMR for ages > 30
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161   #BMR for ages > 30
 
 
     
-    if weight_goal == 11:               # Gain weight
+    if weight_goal == 11:               # gain weight
         tdee = bmr * 1.2                # activity level
-        calories = tdee + 1100          # Add surplus calories for weight gain
+        calories = tdee + 1100          # add surplus calories for weight gain
 
-    elif weight_goal == 33:             # Lose weight
+    elif weight_goal == 33:             # lose weight
         tdee = bmr * 1.2                # activity level
-        calories = tdee - 400           # Subtract deficit calories for weight loss
+        calories = tdee - 400           # subtract deficit calories for weight loss
 
-    else:                               # Maintain weight
+    else:                               # maintain weight
         tdee = bmr * 1.375              # activity level
         calories = tdee + 400
 
     
-    # Calculate macronutrient amounts
-    protein = weight * 1.3          # Protein intake (in grams)
-    fat = (calories * 0.25) / 9     # Fat intake (in grams)
+    #calculate macronutrient amounts
+    protein = weight * 1.3          # Protein intake in grams
+    fat = (calories * 0.25) / 9     # Fat intake in grams
 
 
-    # Ensure carbohydrates are not negative
-    carbohydrates = max((calories - (protein * 4) - (fat * 9)) / 4, 0)  # Carbohydrate intake (in grams)
+    #ensure carbohydrates are not negative
+    carbohydrates = max((calories - (protein * 4) - (fat * 9)) / 4, 0)  # Carbs in grams
 
-    # Calculate total recommended calories for macros
+    #calculate total recommended calories for macros
     total_recommended_calories = protein * 4 + fat * 9 + carbohydrates * 4
 
     return protein, fat, carbohydrates, total_recommended_calories
@@ -266,25 +266,25 @@ def calculate_macronutrient_goals(weight_goal: float, height: float, weight: int
 #!SURVEY COMMAND
 @bot.command()
 async def survey(ctx):
-    view = SurveyView()    # Set to view the above class 
+    view = SurveyView()    #set to view the above class 
     message = await ctx.send("**__Please complete the survey:__**", view=view)
         
     await view.wait()
 
-    # Retrieve the selected values from users answer choices
+    #retrieve the selected values from users answer choices
     age = int(view.answer1[0])
     height = float(view.answer2[0])
     weight = int(view.answer3[0])
     weight_goal = float(view.answer4[0])
     
 
-    # Calculate macros
+    #calculate macros
     protein, fat, carbohydrates, total_calories = calculate_macronutrient_goals(weight_goal, height, weight, age)
 
-    # Format the result message 
+    #format the result message 
     result_message = f"**__Here are your daily macronutrient goals:__**\n\n```Protein: {protein:.2f}g\nFat: {fat:.2f}g\nCarbohydrates: {carbohydrates:.2f}g\nTotal Calories: {total_calories:.2f}```"
 
-    # Send the result message below the survey
+    #send the result message below the survey
     await ctx.send(result_message)
 
 
