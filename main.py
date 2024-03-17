@@ -272,10 +272,11 @@ async def survey(ctx):
     await view.wait()
 
     # Retrieve the selected values from users answer choices
-    weight_goal = float(view.answer4[0])
+    age = int(view.answer1[0])
     height = float(view.answer2[0])
     weight = int(view.answer3[0])
-    age = int(view.answer1[0])
+    weight_goal = float(view.answer4[0])
+    
 
     # Calculate macros
     protein, fat, carbohydrates, total_calories = calculate_macronutrient_goals(weight_goal, height, weight, age)
